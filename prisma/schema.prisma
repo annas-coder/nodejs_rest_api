@@ -4,6 +4,8 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// npx prisma migrate dev --name add-status-column
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,9 +16,17 @@ datasource db {
 }
 
 model user_register {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  username  String?
-  password  String   @db.VarChar(30)
+  id         Int          @id @default(autoincrement())
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  username   String       @unique
+  password   String       @db.VarChar(150)
+  user_login user_login[]
+}
+
+model user_login {
+  id        Int           @id @default(autoincrement())
+  updatedAt DateTime      @updatedAt
+  username  String
+  user      user_register @relation(fields: [username], references: [username]) 
 }

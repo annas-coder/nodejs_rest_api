@@ -16,7 +16,7 @@ app.use(express.json()); // parse requests of content-type - application/json
 
 app.use(express.urlencoded({ extended: true })); // parse requests of content-type - application/x-www-form-urlencoded
 
-app.get("/", AuthuMiddleWare , Controllers.getUserAll);
+app.get("/" , Controllers.getUserAll);
 
 app.post("/register_user", Controllers.createUser);
 

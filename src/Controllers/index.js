@@ -1,6 +1,7 @@
 const prisma = require("../Prisma/index");
 const jwt = require("jsonwebtoken");
-var dotenv = require("dotenv");
+const bcrypt = require("bcrypt")
+var dotenv = require("dotenv"); 
 dotenv.config();
 
 const secret_key = process.env.secret_key;
@@ -35,15 +36,16 @@ module.exports = {
       return res.status(400).send({ error: "User already exists." });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await prisma.user_register.create({
       data: {
         username: username,
-        password: password,
+        password: hashedPassword,
       },
       select: {
         id: true,
         username: true,
-        password: true,
         createdAt: true,
       },
     });
@@ -60,23 +62,36 @@ module.exports = {
       return res.status(400).send({ error: "Mismatch user" });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const checkUser = await prisma.user_register.findFirst({
-      where: { username: username, password: password },
+      where: { username: username },
     });
 
-    if (checkUser?.username === username && checkUser?.password === password) {
-      const token = jwt.sign({ userId: checkUser }, secret_key, {
-        expiresIn: "30m",
-      });
-      process.env.secret_key = token;
-      return res.status(200).json({
-        result: "successfully login",
-        Accestoken: token,
-      });
-    } else {
-      return res.status(500).json({
-        result: "please update validate username and password",
-      });
+    if (!checkUser) {
+      return res.status(400).json({ error: "User not found. Please register first." });
     }
+
+    const isValidPassword = await bcrypt.compare(password, checkUser.password);
+
+    if (!isValidPassword) {
+      return res.status(400).json({ error: "Incorrect password" });
+    }
+
+    await prisma.user_login.create({
+      data: {
+        username: username,
+      },
+    });
+
+    const token = jwt.sign({ userId: checkUser.id }, secret_key, {
+      expiresIn: "30m",
+    });
+  
+    return res.status(200).json({
+      result: "Successfully logged in",
+      Accesstoken: token,
+    });
+  
   },
 };

@@ -1,12 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Register` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-DROP TABLE "Register";
-
 -- CreateTable
 CREATE TABLE "user_register" (
     "id" SERIAL NOT NULL,
@@ -16,4 +7,14 @@ CREATE TABLE "user_register" (
     "password" VARCHAR(30) NOT NULL,
 
     CONSTRAINT "user_register_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "user_login" (
+    "id" SERIAL NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "username" TEXT,
+    "password" VARCHAR(30) NOT NULL,
+
+    CONSTRAINT "user_login_pkey" PRIMARY KEY ("id")
 );
